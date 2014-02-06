@@ -1,0 +1,7 @@
+NAME,A,PER,ECC,OM,T0,K,MSTAR,RSTAR,GAMMA,ORBREF,ORBURL,FIRSTREF,FIRSTURL
+,au,day,,deg,jd,m/s,msun,rsun,km/s,,,,
+55 Cnc e,0.0154393,0.736546,0,90,2455568.011,6.3,0.905,0.943,27.3596,Endl 2012,http://adsabs.harvard.edu/abs/2012ApJ...759...19E,McArthur 2004,http://adsabs.harvard.edu/abs/2004ApJ...614L..81M
+55 Cnc b,0.113377,14.651,0.004,110,2453035,71.11,0.905,0.943,27.3596,Endl 2012,http://adsabs.harvard.edu/abs/2012ApJ...759...19E,Butler 1997,http://adsabs.harvard.edu/abs/1997ApJ...474L.115B
+55 Cnc c,0.237305,44.38,0.07,356,2453083,10.12,0.905,0.943,27.3596,Endl 2012,http://adsabs.harvard.edu/abs/2012ApJ...759...19E,Marcy 2002,http://adsabs.harvard.edu/abs/2004ApJ...614L..81M
+55 Cnc f,0.773567,261.2,0.32,139,2450080.9108,6.2,0.905,0.943,27.3596,Endl 2012,http://adsabs.harvard.edu/abs/2012ApJ...759...19E,Fischer 2008,http://adsabs.harvard.edu/abs/2008ApJ...675..790F
+55 Cnc d,5.47467,4909,0.02,254,2453490,45.2,0.905,0.943,27.3596,Endl 2012,http://adsabs.harvard.edu/abs/2012ApJ...759...19E,Marcy 2002,http://adsabs.harvard.edu/abs/2002ApJ...581.1375M

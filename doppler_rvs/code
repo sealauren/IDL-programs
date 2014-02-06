@@ -1,0 +1,253 @@
+{
+ "metadata": {
+  "name": ""
+ },
+ "nbformat": 3,
+ "nbformat_minor": 0,
+ "worksheets": [
+  {
+   "cells": [
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "from numpy import sin, cos, tan, pi, arctan, arange, floor, sign\n",
+      "import astropy.constants as const\n",
+      "from astropy import units\n",
+      "from scipy.optimize import newton, leastsq"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 27
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "# use cgs units\n",
+      "mearth = const.M_earth.cgs\n",
+      "msun = const.M_sun.cgs\n",
+      "mjup = 317.83 * mearth\n",
+      "G = const.G.cgs\n",
+      "c = const.c.cgs\n",
+      "print mearth, msun, G, c"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": [
+        "5.9742e+27 g 1.9891e+33 g 6.67384e-08 cm3 / (g s2) 29979245800.0 cm / s\n"
+       ]
+      }
+     ],
+     "prompt_number": 2
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "def compute_rv(K,f,om,e,gamma=0,dvdt=0,curve=0,t=0):\n",
+      "    '''Compute the RV given K (m/s), f, om, e, [gamma (m/s), dvdt (m/s), curve (m/s),t=0]'''\n",
+      "    assert K >=0.\n",
+      "    assert e >=0.\n",
+      "    assert e <=1.\n",
+      "    return K*(cos(f+om)+e*cos(om))#+gamma * units.m / units.s +dvdt*(t-14000)+curv*(t-14000)^2  #Default epoch for planet seaarch epoch"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 3
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "def compute_K(m1,m2,P,e,i):\n",
+      "    ''' Compute K for m1 in solar masses, m2 in Earth masses, P in days, eccentricity, i in radians'''\n",
+      "    assert e>=0.\n",
+      "    assert e<=1.\n",
+      "    assert P>=0.\n",
+      "    assert m1>=0.\n",
+      "    assert m2>=0.\n",
+      "#   from Seager Exoplanets, Ch.2:\n",
+      "    return 28.4329 / pow(1-e**2., 1/2) * m2*mearth/mjup * sin(i) * pow((m1 + m2*mearth/msun),-2/3.) * pow(P/365.25,-1/3.) * units.m / units.s"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 21
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "compute_K(1.0,317,11.*365.,0.,pi/2)# check that we get 12 m/s for Jupiter"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "latex": [
+        "$12.7461 \\; \\mathrm{\\frac{m}{s}}$"
+       ],
+       "metadata": {},
+       "output_type": "pyout",
+       "prompt_number": 23,
+       "text": [
+        "<Quantity 12.746126577213325 m / s>"
+       ]
+      }
+     ],
+     "prompt_number": 23
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "def compute_M(t,tp,P):\n",
+      "    '''Compute mean anomaly M'''\n",
+      "    return 2*pi*(((t-tp)/P) - floor((t-tp)/P))\n",
+      "    \n",
+      "kepler = lambda E1, e: E1 - e * sin(E1)\n",
+      "kepler_min = lambda E1, e, M : M - kepler(E1, e) # minimize this to solve Kepler's Equation the easy way\n",
+      "F = lambda E1, e, M: E - e*sin(E1) - M \n",
+      "F1 = lambda E1, e: 1 - e * cos(E1)\n",
+      "F2 = lambda E1, e: e * sin(E1) \n",
+      "F3 = lambda E1, e: e * cos(E1)\n",
+      "d1 = lambda E1, e, M: -F(E1, e, M)/F1(E1, e)\n",
+      "d2 = lambda E1, e, M: -F(E1, e, M)/(F1(E1, e) + 1/2. * d1(E1, e, M) * F2(E1, e))\n",
+      "d3 = lambda E1, e, M: -F(E1, e, M)/(F1(E1, e) + 1/2. * d2(E1, e, M) * F2(E1, e) + 1/6. * (d2(E1, e, M))**2. * F3(E1, e))\n",
+      "Danby_min = lambda E1, e, M: d3(E1, e, M) # minimize this for Danby 1988 method for faster convergence\n",
+      "\n",
+      "def compute_f(E, e):\n",
+      "    '''Compute true anomaly f'''\n",
+      "    n1 = 1 + e\n",
+      "    n2 = 1 - e\n",
+      "    return 2*arctan(pow((n1/n2),1/2.)*tan(E/2))"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 75
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "Marr = compute_M(arange(10), 5.2, 7)\n",
+      "#M = 1/2.\n",
+      "e = 0.3\n",
+      "kepler(1.0, e)"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "metadata": {},
+       "output_type": "pyout",
+       "prompt_number": 82,
+       "text": [
+        "0.74755870455763107"
+       ]
+      }
+     ],
+     "prompt_number": 82
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "Earr = [newton(kepler_min, M + sign(sin(M))*e*0.85, args=(e,M)) for M in Marr]"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 85
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "%timeit newton(Danby_min, M + sign(sin(M))*e*0.85, args=(e,M))"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": [
+        "1000 loops, best of 3: 452 \u00b5s per loop\n"
+       ]
+      }
+     ],
+     "prompt_number": 73
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "farr = [compute_f(E,e) for E in Earr]"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [],
+     "prompt_number": 88
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "print farr"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "output_type": "stream",
+       "stream": "stdout",
+       "text": [
+        "[2.1747488841822027, 2.7804062844587989, -2.9890911081772367, -2.438578593039467, -1.6791266902205906, -0.34627678533814921, 1.2394414500061359, 2.1747488841822027, 2.7804062844587989, -2.9890911081772367]\n"
+       ]
+      }
+     ],
+     "prompt_number": 89
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [
+      "Earr - Marr"
+     ],
+     "language": "python",
+     "metadata": {},
+     "outputs": [
+      {
+       "metadata": {},
+       "output_type": "pyout",
+       "prompt_number": 86,
+       "text": [
+        "array([ 0.28392835,  0.14058695, -0.06179861, -0.23993623, -0.29404157,\n",
+        "       -0.07575265,  0.24655141,  0.28392835,  0.14058695, -0.06179861])"
+       ]
+      }
+     ],
+     "prompt_number": 86
+    },
+    {
+     "cell_type": "code",
+     "collapsed": false,
+     "input": [],
+     "language": "python",
+     "metadata": {},
+     "outputs": []
+    }
+   ],
+   "metadata": {}
+  }
+ ]
+}
