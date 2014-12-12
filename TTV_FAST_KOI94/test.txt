@@ -1,0 +1,20 @@
+# Weiss et al. 2013 values, but small eccentricity
+G = 0.000295994511
+Mstar = 1.277 # units of msun
+Mplanet = np.array([3.153642350811926e-05]) # units of msun
+Period = np.array([3.743208e+00])
+E = np.array([1.0e-01])
+I = np.array([8.930e+01])
+LongNode = np.array([0.0])
+Argument = np.array([1.953665493812839e+01])
+MeanAnomaly = np.array([0.0e+00])
+TT = np.array([-1045]) --> TTV_FAST start time
+TP = np.array(-1044.79686177
+
+Input parameters for RV drive:
+P [ 3.743208]
+tt [-1045]
+tp [-1044.79686177]
+ecc [ 0.1]
+om [ 19.53665494]
+K [ 3.67364762]
